@@ -8,7 +8,7 @@ import { FormsModule }   from '@angular/forms';
 import {ChatComponent} from "./Chat.component";
 
 @NgModule({
-    imports:    [ BrowserModule, FormsModule ],
+    imports:    [ BrowserModule ],
     declarations:   [ ChatComponent ],
     bootstrap:      [ ChatComponent ]
 })

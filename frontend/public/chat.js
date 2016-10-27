@@ -8,28 +8,24 @@ $(function () {
     ];
 
     // Initialize variables
-    var $window = $(window);
-    var $usernameInput = $('.usernameInput'); // Input for username
-    var $messages = $('.messages'); // Messages area
     var $inputMessage = $('.inputMessage'); // Input message input box
 
     var $loginPage = $('.login.page'); // The login page
-    var $chatPage = $('.chat.page'); // The chatroom page
 
     // Prompt for setting a username
     var username;
     var connected = false;
     var typing = false;
     var lastTypingTime;
-    var $currentInput = $usernameInput.focus();
+    var $currentInput = $('.usernameInput').focus();
 
     var socket = io();
     socket.connect('http://localhost')
-    console.log("Connection to Cat socket server, ", socket)
+    console.log("Connection to Catlove socket server, ", socket)
 
-    function addParticipantsMessage(data) {
+    function addParticipantsMessage(event) {
         var message = '';
-        if (data.numUsers === 1) {
+        if (event.numUsers === 1) {
             message += "You are alone :(";
         } else {
             message += "Yay !!!! you can send cats now :) ";
@@ -37,28 +33,28 @@ $(function () {
         log(message);
     }
 
-    // Sets the client's username
     function setUsername() {
-        username = cleanInput($usernameInput.val().trim());
+        console.log("Setting the username for ", $('.usernameInput').val())
+        username = cleanInput($('.usernameInput').val().trim());
 
         if (username) {
-            $loginPage.fadeOut();
-            $chatPage.show();
-            $loginPage.off('click');
+            $('.login.page').fadeOut();
+            $('.chat.page').show();
+            $('.login.page').off('click');
             $currentInput = $inputMessage.focus();
 
             var catAdded = {"username": username, "added": new Date().getTime()}
-            console.log("Client emitting CatAddedEvent ", catAdded)
+            console.log("Client publishing CatAddedEvent ", catAdded)
             socket.emit('CatAddedEvent', catAdded)
         }
     }
 
     function sendLove() {
-        var message = $inputMessage.val();
+        var message = $('.inputMessage').val();
         message = cleanInput(message);
         // if there is a non-empty message and a socket connection
         if (message && connected) {
-            $inputMessage.val('');
+            $('.inputMessage').val('');
 
             var loveEvent = {from: socket.username, message: message, created: new Date().getTime()}
             console.log("client publishing LoveEvent", loveEvent)
@@ -70,7 +66,8 @@ $(function () {
 
     // Log a message
     function log(message, options) {
-        var $el = $('<li>').addClass('log').text(message);
+        var $el = $('<li>').addClass('log').text(message)
+
         addMessageElement($el, options);
     }
 
@@ -113,6 +110,7 @@ $(function () {
     }
 
     function addMessageElement(el, options) {
+        console.log("adding love element, ", options)
         var $el = $(el);
 
         if (!options) {
@@ -130,11 +128,11 @@ $(function () {
             $el.hide().fadeIn(FADE_TIME);
         }
         if (options.prepend) {
-            $messages.prepend($el);
+            $('.messages').prepend($el);
         } else {
-            $messages.append($el);
+            $('.messages').append($el);
         }
-        $messages[0].scrollTop = $messages[0].scrollHeight;
+        $('.messages')[0].scrollTop = $('.messages')[0].scrollHeight;
     }
 
     // Prevents input from having injected markup
@@ -185,7 +183,7 @@ $(function () {
 
     // Keyboard events
 
-    $window.keydown(function (event) {
+    $(window).keydown(function (event) {
         // Auto-focus the current input when a key is typed
         if (!(event.ctrlKey || event.metaKey || event.altKey)) {
             $currentInput.focus();
@@ -217,6 +215,7 @@ $(function () {
 
     // Socket events
     socket.on('LoggedInEvent', function (event) {
+        console.log("Client consuming LoggedInEvent ", event)
         connected = true;
         var message = "Let's Cat -_-"
         log(message, {prepend: true});

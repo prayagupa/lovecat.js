@@ -18,7 +18,7 @@ var numUsers = 0;
 
 io.on('connection', function (socket) {
 
-    console.log('Connection to client established ', socket.nsp.sockets);
+    console.log('Connection to client established.');
 
     var addedUser = false;
 
@@ -35,7 +35,9 @@ io.on('connection', function (socket) {
             socket.username = catAddedEvent.username
             ++numUsers
             addedUser = true
-            socket.emit('LoggedInEvent', {"username": catAddedEvent.username, "numUsers": numUsers});
+            var loggedInEvent = {"username": catAddedEvent.username, "numUsers": numUsers}
+            console.log('server publishing LoggedInEvent', loggedInEvent);
+            socket.emit('LoggedInEvent', loggedInEvent);
 
             // publish globally
             socket.broadcast.emit('CatJoinedEvent', catAddedEvent)
@@ -54,18 +56,15 @@ io.on('connection', function (socket) {
         })
     });
 
-    // when the client emits 'typing', we broadcast it to others
     socket.on('Typing', function () {
         console.log("Server consuming Typing event for ", socket.username)
         socket.broadcast.emit('Typing', { from: socket.username });
     });
 
-    // when the client emits 'stop typing', we broadcast it to others
     socket.on('StopTyping', function () {
         socket.broadcast.emit('StopTyping', { from: socket.username });
     });
 
-    // when the user disconnects.. perform this
     socket.on('disconnect', function () {
         if (addedUser) {
             --numUsers;
