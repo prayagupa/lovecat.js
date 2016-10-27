@@ -4,6 +4,10 @@ var http = require('http').createServer(app);
 var port = process.env.PORT || 3000;
 var io = require('socket.io')(http)
 
+var assert = require('assert');
+
+var MongoClient = require('mongodb').MongoClient
+
 http.listen(port, function () {
     console.log('Cat client running at localhost:%d', port);
 });
@@ -18,46 +22,47 @@ io.on('connection', function (socket) {
 
     var addedUser = false;
 
-    // when the client emits 'love message', this listens and executes
-    socket.on('LoveEvent', function (data) {
-        console.log("server publishing LovedCommand")
-        socket.broadcast.emit('LoveEvent', {
-            username: socket.username,
-            message: data
-        });
-    });
-
-    // when the client emits 'add user', this listens and executes
-    socket.on('CatAddedEvent', function (username) {
-        console.log('server consuming CatAddedEvent', username);
+    socket.on('CatAddedEvent', function (catAddedEvent) {
+        console.log('server consuming CatAddedEvent', catAddedEvent);
         if (addedUser) return;
 
-        // we store the username in the socket session for this client
-        socket.username = username;
-        ++numUsers;
-        addedUser = true;
-        socket.emit('login', {
-            numUsers: numUsers
-        });
-        // echo globally (all clients) that a person has connected
-        socket.broadcast.emit('CatJoinedEvent', {
-            username: socket.username,
-            numUsers: numUsers
-        });
+        MongoClient.connect("mongodb://localhost:27017/lovecat", function (err, db) {
+            assert.equal(null, err)
+            db.collection("CatsState").insertOne(catAddedEvent)
+            db.close()
+
+            // store the username in the socket session for this client
+            socket.username = catAddedEvent.username
+            ++numUsers
+            addedUser = true
+            socket.emit('LoggedInEvent', {"username": catAddedEvent.username, "numUsers": numUsers});
+
+            // publish globally
+            socket.broadcast.emit('CatJoinedEvent', catAddedEvent)
+        })
+    });
+
+    socket.on('LoveEvent', function (event) {
+        console.log("server publishing LovedCommand")
+        var loveEvent = {from: socket.username, message: event.message, created: event.created}
+
+        MongoClient.connect("mongodb://localhost:27017/lovecat", function (err, db) {
+            assert.equal(null, err)
+            db.collection("LovesState").insertOne(loveEvent)
+            db.close()
+            socket.broadcast.emit('LovedEvent', loveEvent)
+        })
     });
 
     // when the client emits 'typing', we broadcast it to others
-    socket.on('typing', function () {
-        socket.broadcast.emit('typing', {
-            username: socket.username
-        });
+    socket.on('Typing', function () {
+        console.log("Server consuming Typing event for ", socket.username)
+        socket.broadcast.emit('Typing', { from: socket.username });
     });
 
     // when the client emits 'stop typing', we broadcast it to others
-    socket.on('stop typing', function () {
-        socket.broadcast.emit('stop typing', {
-            username: socket.username
-        });
+    socket.on('StopTyping', function () {
+        socket.broadcast.emit('StopTyping', { from: socket.username });
     });
 
     // when the user disconnects.. perform this
