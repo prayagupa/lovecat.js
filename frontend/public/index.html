@@ -1,31 +1,33 @@
-<!doctype html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>love-cat</title>
-  <link rel="stylesheet" href="chat.css">
+    <title>lovecat</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet"
+          href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <!-- 1. Load libraries -->
+    <!-- Polyfill(s) for older browsers -->
+    <script src="node_modules/core-js/client/shim.min.js"></script>
+
+    <script src="node_modules/zone.js/dist/zone.js"></script>
+    <script src="node_modules/reflect-metadata/Reflect.js"></script>
+    <script src="node_modules/systemjs/dist/system.src.js"></script>
+
+    <!-- 2. Configure SystemJS -->
+    <script src="systemjs.config.js"></script>
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script src="/chat.js"></script>
+    <script>
+        System.import('app').catch(function (err) {
+            console.error(err);
+        });
+    </script>
 </head>
+
+<!-- 3. Display the application -->
 <body>
-  <ul class="pages">
-
-    <li class="chat page">
-      <div class="chatArea">
-        <ul class="messages"></ul>
-      </div>
-      <input class="inputMessage" placeholder="Send love..."/>
-    </li>
-
-    <li class="login page">
-      <div class="form">
-        <h3 class="title">username?</h3>
-        <input class="usernameInput" type="text" maxlength="14" />
-      </div>
-    </li>
-  </ul>
-
-  <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
-  <script src="/chat.js"></script>
+<ChatView>Loading chat application</ChatView>
 </body>
 </html>
-
