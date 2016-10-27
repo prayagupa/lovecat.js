@@ -3,11 +3,15 @@
   "version": "0.0.0",
   "description": "A simple love chat",
   "main": "Server.js",
+  "scripts": {
+    "npm love": "node Server.js"
+  },
   "author": "_u_p_d_",
   "private": true,
   "license": "BSD",
   "dependencies": {
     "express": "4.13.4",
-    "socket.io" : "^1.5.1"
+    "socket.io" : "^1.5.1",
+    "mongodb": "^2.2.10"
   }
 }

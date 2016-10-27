@@ -121,7 +121,7 @@ ul {
   padding: 10px 20px 10px 20px;
 }
 
-.message.typing .messageBody {
+.message.Typing .messageBody {
   color: gray;
 }
 
