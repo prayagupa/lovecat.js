@@ -1,18 +1,14 @@
-// Setup basic express server
 var express = require('express');
 var app = express();
 var http = require('http').createServer(app);
-var io = require('socket.io')(http, {transports: ['websocket', 'xhr-polling']});
+var io = require('socket.io')(http, {origins: '*.*', transports: ['websocket', 'xhr-polling']});
 var port = process.env.PORT || 8080;
 
 http.listen(port, function () {
     console.log('Cat Server listening at http://127.0.0.1:%d', port);
 });
 
-// Routing
 app.use(express.static(__dirname + '/public'));
-
-// Chatroom
 
 var numUsers = 0;
 
@@ -24,7 +20,7 @@ io.on('connection', function (socket) {
 
     // when the client emits 'love message', this listens and executes
     socket.on('LoveEvent', function (data) {
-        console.log("we tell the client to execute 'lovemessage'")
+        console.log("Publishing LovedCommand")
         socket.broadcast.emit('LoveEvent', {
             username: socket.username,
             message: data
@@ -77,4 +73,3 @@ io.on('connection', function (socket) {
         }
     });
 });
-

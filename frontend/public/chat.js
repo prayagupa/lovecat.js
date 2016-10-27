@@ -24,7 +24,7 @@ $(function() {
   var $currentInput = $usernameInput.focus();
 
   var socket = io();
-  socket.connect('http://localhost:8080', {transports: ['websocket', 'xhr-polling']})
+  socket.connect('http://localhost')
   console.log("Connection to Cat socket server, ", socket)
 
   function addParticipantsMessage (data) {
